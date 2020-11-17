@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
@@ -58,16 +59,48 @@ class GameFragment : Fragment() {
                 false
         )
 
+        //ViewModel
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+
+//        viewModel.score.observe(viewLifecycleOwner, Observer {
+//            binding.scoreText.text = it.toString() })
+
+        // Di hapus karena live data nya sudah disertakan dalam binding data di text xml
+//        // Fitur Live Data ketika terjadi perubahan maka observe akan mentriger observer untuk melihat perubahan.
+//        viewModel.score.observe(viewLifecycleOwner, Observer { newScore -> // lamda hanya penamaan variabel penggati it : mengikuti dari viewModel score
+//            binding.scoreText.text = newScore.toString()
+//        }) // kalau di activity viewLifecycleOwner... cukup this disini karena di fragment.
+//
+//        // melihat perubahan data pada viewModel , terjadi perubahan / update pada viewModel word.value makan akan berubah juga pada fun binding yang ada pad ait
+//        viewModel.word.observe(viewLifecycleOwner, Observer { newWord ->
+//            binding.wordText.text = newWord
+//        })
+
+        //observer
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer { hasFinished ->
+            if (hasFinished) gameFinished()
+
+        })
+
+        // mengisi variable yang ada di xml dengan view model
+        binding.gameViewModel = viewModel
+
+        // supaaya livedata bisa digunakan pada xml , sehingga bisa di observe
+        binding.lifecycleOwner = viewLifecycleOwner
+
+
 
 //        resetList()
 //        nextWord()
+//    Di hapus karena sudah dibinding langsung di xml nya
+//        binding.correctButton.setOnClickListener { onCorrect() }
+//        binding.skipButton.setOnClickListener { onSkip() }
+//        binding.endGameButton.setOnClickListener { onEndGame() }
 
-        binding.correctButton.setOnClickListener { onCorrect() }
-        binding.skipButton.setOnClickListener { onSkip() }
-        binding.endGameButton.setOnClickListener { onEndGame() }
-        updateScoreText()
-        updateWordText()
+
+        // DI Hapus Karena sudah tergantikan dari view Model sudah live data. yang berubah / update
+//        updateScoreText()
+//        updateWordText()
         return binding.root
 
     }
@@ -104,26 +137,32 @@ class GameFragment : Fragment() {
 
     /** Methods for buttons presses **/
 
-    private fun onSkip() {
-        viewModel.onSkip()
-        updateWordText()
-        updateScoreText()
-    }
+    // dihapus sehingga game fragment tampak simple karena sudah dibinding functionnya
 
-    private fun onCorrect() {
-        viewModel.onCorrect()
-        updateWordText()
-        updateScoreText()
-    }
-
-    private fun onEndGame(){
-        gameFinished()
-    }
+//    private fun onSkip() {
+//        viewModel.onSkip()
+//        // DI Hapus Karena sudah tergantikan dari view Model sudah live data. yang berubah / update
+////        updateWordText()
+////        updateScoreText()
+//    }
+//
+//    private fun onCorrect() {
+//        viewModel.onCorrect()
+//        // DI Hapus Karena sudah tergantikan dari view Model sudah live data. yang berubah / update
+////        updateWordText()
+////        updateScoreText()
+//    }
+//
+//    private fun onEndGame(){
+//        gameFinished()
+//    }
 
     private fun  gameFinished(){
         val action = GameFragmentDirections.actionGameToScore()
-        action.score = viewModel.score
+//        action.score = viewModel.score
+        action.score = viewModel.score.value?:0 //ternary operator - pengecekan nilai - ketika nilai bernilai null maka akan false mengisi angka 0 , jika bernilai true akan megisi nilai score value tersebut.
         NavHostFragment.findNavController(this).navigate(action)
+        viewModel.onGameFinishComplete()
     }
 
 //    /**
@@ -139,13 +178,16 @@ class GameFragment : Fragment() {
 //    }
 
 
-    /** Methods for updating the UI **/
+    // DI Hapus Karena sudah tergantikan dari view Model sudah live data. yang berubah / update
 
-    private fun updateWordText() {
-        binding.wordText.text = viewModel.word
-    }
-
-    private fun updateScoreText() {
-        binding.scoreText.text = viewModel.score.toString()
-    }
+//    /** Methods for updating the UI **/
+//
+//    private fun updateWordText() {
+////        binding.wordText.text = viewModel.word
+//        binding.wordText.text = viewModel.word.value.toString()
+//    }
+//
+//    private fun updateScoreText() {
+//        binding.scoreText.text = viewModel.score.toString()
+//    }
 }
